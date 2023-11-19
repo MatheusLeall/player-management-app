@@ -5,20 +5,27 @@ import axios from "axios";
 function Player(props){
     const deletePlayer = (playerId) => {
         axios.delete(`http://127.0.0.1:8000/players/${playerId}`)
-            .then(
-                response => {
-                    alert("Jogador removido com sucesso!")
-                }
-            )
+    }
+
+    const updatePlayer = (player) => {
+        props.setPlayerId(player.id)
+        props.setPlayerName(player.name)
+        props.setPlayerAge(player.age)
+        props.setPlayerTeam(player.team)
+        props.setButtonText(player.setButtonText)
+        props.setButtonText("Atualizar")
     }
 
     return (
-        <div>
+        <div className="card m-2">
             <p>
-                <span>
+                <span className="p-5">
                     {props.player.name} - {props.player.age} - {props.player.team}
                 </span>
-                <button onClick={ ()=> deletePlayer(props.player.id) } className="btn btn-danger">
+                <button onClick={ ()=> updatePlayer(props.player) } className="btn btn-sm">
+                    <span className="badge rounded-pill bg-primary">Editar</span>
+                </button>
+                <button onClick={ ()=> deletePlayer(props.player.id) } className="btn btn-sm">
                     <span className="badge rounded-pill bg-danger">X</span>
                 </button>
             </p>

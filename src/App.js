@@ -1,32 +1,49 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
+import PlayerList from './components/playerList';
 
 function App() {
   const [playerList, setPlayerList] = useState([{}]);
   const [playerName, setPlayerName] = useState('');
   const [playerAge, setPlayerAge] = useState('');
   const [playerTeam, setPlayerTeam] = useState('');
+  const [playerId, setPlayerId] = useState('');
+  const [buttonText, setButtonText] = useState('Cadastrar');
 
   useEffect(()=>{
     axios.get("http://127.0.0.1:8000/players")
       .then(response => {
-        console.log(response.data)
+        setPlayerList(response.data)
       }).catch(
         (error) => {console.log(error)}
       )
   });
 
-  const postPlayer = () => {
-    const playerToCreate = {
+  const createOrUpdatePlayer = () => {
+    const playerToCreateOrUpdate = {
       "player_name": playerName,
       "player_age": playerAge,
       "player_team": playerTeam
     }
-    axios.post("http://127.0.0.1:8000/players", playerToCreate)
-      .then(response => {
-        alert(response)
-      }).catch((error) => {
+
+    if(playerId !== ''){
+      putPlayer(playerToCreateOrUpdate)
+    } else {
+      postPlayer(playerToCreateOrUpdate)
+    }
+  }
+
+  const postPlayer = (player) => {
+    axios.post("http://127.0.0.1:8000/players", player)
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  const putPlayer = (player) => {
+    axios.put(`http://127.0.0.1:8000/players/${playerId}`, player)
+      .catch((error) => {
         console.log(error)
       })
   }
@@ -42,14 +59,38 @@ function App() {
         <div className="card-body text-center">
           <h5 className="card text-center text-white bg-dark pb-1">Cadastro de jogdores</h5>
           <span className="card-text">
-            <input onChange={ event => setPlayerName(event.target.value) } className="mb-2 form-control" placeholder="Nome do jogador"/>
-            <input onChange={ event => setPlayerAge(event.target.value) } className="mb-2 form-control" placeholder="Idade do jogador"/>
-            <input onChange={ event => setPlayerTeam(event.target.value) } className="mb-2 form-control" placeholder="Time do jogador"/>
-            <button onClick={postPlayer} className="btn btn-outline-success mb-4">Criar cadastro</button>
+            <input 
+              value={playerName}
+              onChange={ event => setPlayerName(event.target.value) }
+              className="mb-2 form-control"
+              placeholder="Nome do jogador"
+            />
+            <input 
+              value={playerAge}
+              onChange={ event => setPlayerAge(event.target.value) }
+              className="mb-2 form-control"
+              placeholder="Idade do jogador"
+            />
+            <input 
+              value={playerTeam}
+              onChange={ event => setPlayerTeam(event.target.value) }
+              className="mb-2 form-control"
+              placeholder="Time do jogador"
+            />
+            <button onClick={createOrUpdatePlayer} className="btn btn-outline-success mb-4">
+              {buttonText}
+            </button>
           </span>
           <h5 className="card text-center text-white bg-dark pb-1">Jogadores cadastrados no sistema</h5>
           <div>
-
+            <PlayerList 
+              playerList={playerList}
+              setPlayerId={setPlayerId}
+              setPlayerName={setPlayerName}
+              setPlayerAge={setPlayerAge}
+              setPlayerTeam={setPlayerTeam}
+              setButtonText={setButtonText}
+            />
           </div>
         </div>
         <h6 className="card text-center text-light bg-success py-1">&copy; Matheus Leal</h6>
